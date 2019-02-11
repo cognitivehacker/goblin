@@ -1,5 +1,5 @@
 local Bullet = require('Bullet')
-local Enemy = require('Enemy')
+local GameObject = require('GameObject')
 
 _WINDOW_FULLSCREEN = false
 _WINDOW_WIDTH = 240
@@ -69,8 +69,13 @@ function love.update(dt)
         if e.y - e.height > _WINDOW_HEIGHT then
             table.remove(enemys_active, i)
         end
-    end
 
+        e.animation.currentTime = e.animation.currentTime + dt
+        if e.animation.currentTime >= e.animation.duration then
+            e.animation.currentTime = e.animation.currentTime - e.animation.duration
+        end
+    end
+    print(enemys_active[1].animation.currentTime)
     scroll(dt)
 end
     
@@ -87,7 +92,8 @@ function love.draw()
     end
 
     for i, e in ipairs(enemys_active) do
-        love.graphics.draw(e.img, e.x, e.y)
+        local spriteNum = math.floor(e.animation.currentTime / e.animation.duration * #e.animation.quads) + 1
+        love.graphics.draw(e.animation.spriteSheet, e.animation.quads[spriteNum], e.x, e.y, 0)
     end
     
     love.graphics.setFont(love.graphics.newFont(7))
@@ -139,7 +145,7 @@ function spawn()
     if #enemys_active < _GAME_ENEMY_SLOT_SIZE then
         local x = math.random(0, _WINDOW_WIDTH - 16)
         local y = math.random(- 1800, -16)
-        b = Enemy:new(enemyImg, x, y, 0,  math.random(_GAME_ENEMY_SPEED-50, _GAME_ENEMY_SPEED+50))
+        b = GameObject:new(enemyImg, x, y, 0,  math.random(_GAME_ENEMY_SPEED-50, _GAME_ENEMY_SPEED+50), 16, 16)
         table.insert(enemys_active, b)
     end
 end
