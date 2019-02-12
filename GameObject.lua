@@ -1,6 +1,6 @@
 local GameObject = {}
 
-function GameObject:new(img, x, y, speed_x, speed_y, width, height)
+function GameObject:new(img, x, y, speed_x, speed_y, width, height, duration)
     local o = o or {}
     self.__index = self
     setmetatable(o , self)
@@ -12,7 +12,7 @@ function GameObject:new(img, x, y, speed_x, speed_y, width, height)
     o.speed_y = speed_y
     o.width = width or img:getWidth()
     o.height = height or img:getHeight()
-    o.animation = GameObject.makeAnimation(0.5, img, o.width, o.height)
+    o.animation = GameObject.makeAnimation(duration or 1, img, o.width, o.height)
     return o
 end
 
@@ -27,7 +27,7 @@ function GameObject.makeAnimation(duration, image, width, height)
         end
     end
 
-    animation.duration = duration or 1
+    animation.duration = duration
     animation.currentTime = 0
 
     return animation

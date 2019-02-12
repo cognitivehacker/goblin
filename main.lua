@@ -8,21 +8,22 @@ _WINDOW_SCALLING_X = 3
 _WINDOW_SCALLING_Y = 3
 
 _GAME_SHIP_SPEED = 120
-_GAME_CATRIDGE_SIZE = 3
+_GAME_CATRIDGE_SIZE = 4
 _GAME_ENEMY_SLOT_SIZE = 50
 _GAME_ENEMY_SPEED = 150
 _GAME_BG_SPEED = 100
+_GAME_BULLET_SPEED = -270
 _GAME_RUNING = true
 
-local goblin = {
-    x=100,
-    y=100,
-    width=16,
-    height=16,
-    speed_y=0,
-    speed_x=0,
-    alive=true
-}
+local goblin
+--     x=100,
+--     y=100,
+--     width=16,
+--     height=16,
+--     speed_y=0,
+--     speed_x=0,
+--     alive=true
+-- }
 
 local bg = {
     x=0,
@@ -38,59 +39,55 @@ local score = 0
 function love.load()
     success = love.window.setMode( _WINDOW_WIDTH * _WINDOW_SCALLING_X, _WINDOW_HEIGHT * _WINDOW_SCALLING_Y, {fullscreen=_WINDOW_FULLSCREEN})
     love.graphics.setDefaultFilter("nearest", "nearest")
-    
-    goblin.image = love.graphics.newImage('images/goblin.png')
+    goblinImage = love.graphics.newImage('images/goblin.png')
     bulletImg = love.graphics.newImage('images/bullet.png')
     enemyImg = love.graphics.newImage('images/flyingalfa.png')
     bg.image = love.graphics.newImage('images/bg.png')
+    
+    goblin = GameObject:new(goblinImage, 100, 200, 0, 0, 16, 16, 0.2)
+    goblin.alive = true
 end
 
 function love.update(dt)
     if not  _GAME_RUNING then
         return
     end
-
-   goblin_move(dt)
-   spawn()
-   colide_bullet()
-   colide_player()
-
-   -- UPDATE BULLETS --
-   for i, b in ipairs(bullets_active) do
+    
+    
+    goblin_move(dt)
+    goblin_animate(dt)
+    spawn()
+    colide_bullet()
+    colide_player()
+    
+    -- UPDATE BULLETS --
+    for i, b in ipairs(bullets_active) do
         b.y = b.y + b.speed_y * dt
         if b.y <= 0 then
             table.remove(bullets_active, i)
         end
     end
-
+    
     -- UPDATE ENEMYS --
-    for i, e in ipairs(enemys_active) do
-        e.y = e.y + e.speed_y * dt
-        if e.y - e.height > _WINDOW_HEIGHT then
-            table.remove(enemys_active, i)
-        end
-
-        e.animation.currentTime = e.animation.currentTime + dt
-        if e.animation.currentTime >= e.animation.duration then
-            e.animation.currentTime = e.animation.currentTime - e.animation.duration
-        end
-    end
-    print(enemys_active[1].animation.currentTime)
+    update_enemys(dt)
     scroll(dt)
 end
-    
+
 function love.draw()
     love.graphics.scale(_WINDOW_SCALLING_X, _WINDOW_SCALLING_Y)
     love.graphics.draw(bg.image, bg.x, bg.y-320)
     love.graphics.draw(bg.image, bg.x, bg.y)
+    
     if goblin.alive then
-        love.graphics.draw(goblin.image, goblin.x, goblin.y)
+        -- love.graphics.draw(goblin.img, goblin.x, goblin.y)
+        local spriteNum = math.floor(goblin.animation.currentTime / goblin.animation.duration * #goblin.animation.quads) + 1
+        love.graphics.draw(goblin.animation.spriteSheet, goblin.animation.quads[spriteNum], goblin.x, goblin.y, 0)
     end
-
+    
     for i, b in ipairs(bullets_active) do
         love.graphics.draw(b.img, b.x, b.y)
     end
-
+    
     for i, e in ipairs(enemys_active) do
         local spriteNum = math.floor(e.animation.currentTime / e.animation.duration * #e.animation.quads) + 1
         love.graphics.draw(e.animation.spriteSheet, e.animation.quads[spriteNum], e.x, e.y, 0)
@@ -112,7 +109,9 @@ function love.keypressed(key, scancode, isrepeat)
         goblin.speed_x = -1 * _GAME_SHIP_SPEED
     elseif key == 'right' then
         goblin.speed_x = 1 * _GAME_SHIP_SPEED
-    end        
+    elseif key == "return" then
+        restart()
+    end     
 end
 
 function love.keyreleased(key)
@@ -128,6 +127,28 @@ function love.keyreleased(key)
         shot()
     end        
 end
+
+function goblin_animate(dt)
+    goblin.animation.currentTime = goblin.animation.currentTime + dt
+    if goblin.animation.currentTime >= goblin.animation.duration then
+        goblin.animation.currentTime = goblin.animation.currentTime - goblin.animation.duration
+    end
+end
+
+function update_enemys(dt)
+    for i, e in ipairs(enemys_active) do
+        e.y = e.y + e.speed_y * dt
+        if e.y - e.height > _WINDOW_HEIGHT then
+            table.remove(enemys_active, i)
+        end
+        
+        e.animation.currentTime = e.animation.currentTime + dt
+        if e.animation.currentTime >= e.animation.duration then
+            e.animation.currentTime = e.animation.currentTime - e.animation.duration
+        end
+    end
+end
+
 function  scroll(dt)
     bg.y = bg.y + _GAME_BG_SPEED * dt
     if bg.y > _WINDOW_HEIGHT then
@@ -136,7 +157,7 @@ function  scroll(dt)
 end
 function shot()
     if #bullets_active < _GAME_CATRIDGE_SIZE then
-        b = Bullet:new(bulletImg, goblin.x + goblin.width / 2, goblin.y, 0, -150)
+        b = Bullet:new(bulletImg, goblin.x + goblin.width / 2, goblin.y, 0, _GAME_BULLET_SPEED)
         table.insert(bullets_active, b)
     end
 end
@@ -182,16 +203,28 @@ function goblin_move(dt)
     if goblin.x + goblin.width >= _WINDOW_WIDTH then
         goblin.x = _WINDOW_WIDTH - goblin.width
     end
-
+    
     if goblin.x < 0 then
         goblin.x = 0
     end
-
+    
     if goblin.y < 0 then
         goblin.y = 0
     end
-
+    
     if goblin.y + goblin.height >= _WINDOW_HEIGHT then
         goblin.y = _WINDOW_HEIGHT - goblin.height
+    end
+end
+
+function restart()
+    if not _GAME_RUNING then
+        goblin.alive = true
+        goblin.x = 100
+        goblin.y = 200
+        _GAME_RUNING = true
+        enemys_active = {}
+        bullets_active = {}
+        score = 0
     end
 end
