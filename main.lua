@@ -1,5 +1,7 @@
 local Bullet = require('Bullet')
 local GameObject = require('GameObject')
+local Animation = require('Animation')
+local spritemap = require('spritemap')
 
 _WINDOW_FULLSCREEN = false
 _WINDOW_WIDTH = 240
@@ -9,11 +11,13 @@ _WINDOW_SCALLING_Y = 3
 
 _GAME_SHIP_SPEED = 120
 _GAME_CATRIDGE_SIZE = 4
-_GAME_ENEMY_SLOT_SIZE = 50
+_GAME_ENEMY_SLOT_SIZE = 10
 _GAME_ENEMY_SPEED = 150
 _GAME_BG_SPEED = 100
 _GAME_BULLET_SPEED = -270
 _GAME_RUNING = true
+_GAME_CONTROLLS = true
+_GAME_GOBLIN_ANIMATION_SPEED = 0.25
 
 local goblin
 --     x=100,
@@ -33,18 +37,23 @@ local bg = {
 local bullets_active = {}
 local enemys_active = {}
 local bulletImg
+local xplosion
 
 local score = 0
+local lifes = 5
 
 function love.load()
     success = love.window.setMode( _WINDOW_WIDTH * _WINDOW_SCALLING_X, _WINDOW_HEIGHT * _WINDOW_SCALLING_Y, {fullscreen=_WINDOW_FULLSCREEN})
     love.graphics.setDefaultFilter("nearest", "nearest")
-    goblinImage = love.graphics.newImage('images/goblin.png')
+    goblinImage = love.graphics.newImage('images/sailfish.png')
     bulletImg = love.graphics.newImage('images/bullet.png')
     enemyImg = love.graphics.newImage('images/flyingalfa.png')
     bg.image = love.graphics.newImage('images/bg.png')
+    lifeIcon = love.graphics.newImage("images/lifeicon.png")
+    xplosion = love.graphics.newImage("images/xplosion.png")
     
-    goblin = GameObject:new(goblinImage, 100, 200, 0, 0, 16, 16, 0.2)
+    goblin = GameObject:new(goblinImage, 100, 200, 0, 0, 22, 29, 0.2)
+    goblin.animation = Animation:new(goblinImage, spritemap.goblin_stay.quads, _GAME_GOBLIN_ANIMATION_SPEED, false)
     goblin.alive = true
 end
 
@@ -52,10 +61,10 @@ function love.update(dt)
     if not  _GAME_RUNING then
         return
     end
-    
-    
+
     goblin_move(dt)
-    goblin_animate(dt)
+
+    goblin.animation:step(dt)
     spawn()
     colide_bullet()
     colide_player()
@@ -79,9 +88,8 @@ function love.draw()
     love.graphics.draw(bg.image, bg.x, bg.y)
     
     if goblin.alive then
-        -- love.graphics.draw(goblin.img, goblin.x, goblin.y)
-        local spriteNum = math.floor(goblin.animation.currentTime / goblin.animation.duration * #goblin.animation.quads) + 1
-        love.graphics.draw(goblin.animation.spriteSheet, goblin.animation.quads[spriteNum], goblin.x, goblin.y, 0)
+        local quad = goblin.animation:getCurrentQuad()
+        love.graphics.draw(goblin.animation.spriteSheet, quad, goblin.x, goblin.y, 0)
     end
     
     for i, b in ipairs(bullets_active) do
@@ -96,18 +104,29 @@ function love.draw()
     love.graphics.setFont(love.graphics.newFont(7))
     love.graphics.print("SCORE: " .. score, 10, 10)
     if not _GAME_RUNING then
-        love.graphics.print("GAME OVER", _WINDOW_WIDTH / 2 -20, _WINDOW_HEIGHT / 2)
+        love.graphics.setFont(love.graphics.newFont(17))
+        love.graphics.print("GAME OVER", _WINDOW_WIDTH / 2 -55, _WINDOW_HEIGHT / 2)
+    end
+
+    for l = 1, lifes do
+        love.graphics.draw(lifeIcon, 100 + 9 * l, 10)
     end
 end
 
 function love.keypressed(key, scancode, isrepeat)
+    if not _GAME_CONTROLLS then
+        return
+    end
+
     if key == 'up' then
         goblin.speed_y = -1 * _GAME_SHIP_SPEED
     elseif key == 'down' then
         goblin.speed_y = 1 * _GAME_SHIP_SPEED
     elseif key == 'left' then
+        goblin.animation = Animation:new(goblinImage, spritemap.goblin_turn_left.quads, _GAME_GOBLIN_ANIMATION_SPEED, false)
         goblin.speed_x = -1 * _GAME_SHIP_SPEED
     elseif key == 'right' then
+        goblin.animation = Animation:new(goblinImage, spritemap.goblin_turn_right.quads, _GAME_GOBLIN_ANIMATION_SPEED, false)
         goblin.speed_x = 1 * _GAME_SHIP_SPEED
     elseif key == "return" then
         restart()
@@ -115,24 +134,25 @@ function love.keypressed(key, scancode, isrepeat)
 end
 
 function love.keyreleased(key)
+    if not _GAME_CONTROLLS then
+        return
+    end
+
     if key == 'up' then
         goblin.speed_y = 0
     elseif key == 'down' then
         goblin.speed_y = 0
     elseif key == 'left' then
+        goblin.animation = Animation:new(goblinImage, spritemap.goblin_back.quads, _GAME_GOBLIN_ANIMATION_SPEED, false)
         goblin.speed_x = 0
     elseif key == 'right' then
+        goblin.animation = Animation:new(goblinImage, spritemap.goblin_back_right.quads, _GAME_GOBLIN_ANIMATION_SPEED, false)
         goblin.speed_x = 0
     elseif key == 'space' then
-        shot()
+        if _GAME_CONTROLLS then
+            shot()
+        end
     end        
-end
-
-function goblin_animate(dt)
-    goblin.animation.currentTime = goblin.animation.currentTime + dt
-    if goblin.animation.currentTime >= goblin.animation.duration then
-        goblin.animation.currentTime = goblin.animation.currentTime - goblin.animation.duration
-    end
 end
 
 function update_enemys(dt)
@@ -155,6 +175,7 @@ function  scroll(dt)
         bg.y = 0
     end
 end
+
 function shot()
     if #bullets_active < _GAME_CATRIDGE_SIZE then
         b = Bullet:new(bulletImg, goblin.x + goblin.width / 2, goblin.y, 0, _GAME_BULLET_SPEED)
@@ -190,8 +211,18 @@ function colide_player()
         if goblin.x + goblin.width >= e.x and goblin.x <= e.x + e.width 
         and goblin.y > e.y and goblin.y < e.y + e.height then
             -- PLAYER HIT --
-            goblin.alive = false
-            _GAME_RUNING = false
+            _GAME_CONTROLLS = false
+            goblin.animation = Animation:new(xplosion, spritemap.xplosion.quads, 1, false, function(a) 
+                goblin.animation = Animation:new(goblinImage, spritemap.goblin_back.quads, _GAME_GOBLIN_ANIMATION_SPEED, false)
+                _GAME_CONTROLLS = true
+            end)
+            lifes = lifes -1
+            table.remove(enemys_active, i)
+            if lifes <= 0 then
+                goblin.alive = false
+                _GAME_RUNING = false
+                _GAME_CONTROLLS = true
+            end
         end
     end
 end
@@ -226,5 +257,6 @@ function restart()
         enemys_active = {}
         bullets_active = {}
         score = 0
+        lifes = 5
     end
 end
