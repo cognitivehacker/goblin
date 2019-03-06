@@ -18,7 +18,6 @@ function Animation:new(spriteSheet, quads, duration, loop, fn)
     animation.loop = loop or false
     animation.fn = fn
 
-    print("Animation Started\n")
     return animation
 end
 

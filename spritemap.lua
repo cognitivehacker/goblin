@@ -55,6 +55,14 @@ return {
             {width=32, height=32, x=352, y=0},
             {width=32, height=32, x=384, y=0},
         }
+    },
+    flyingalpha={
+        
+        loop = true,
+        quads={
+            {width=17, height=16, x=0, y=0},
+            {width=17, height=16, x=0, y=16},
+        }
     }
 }
 

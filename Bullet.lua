@@ -1,17 +1,13 @@
-local Bullet = {}
+local GameObject = require("GameObject")
 
-function Bullet:new(img, x, y, speed_x, speed_y)
-    local o = o or {}
-    self.__index = self
-    setmetatable(o , self)
-    
-    o.img = img
-    o.x = x
-    o.y = y
-    o.speed_x = speed_x
-    o.speed_y = speed_y
+local Bullet = GameObject:new()
 
-    return o
+function Bullet:isDead()
+    return self.dead or self.y <= 0 - self.height 
+end
+
+function Bullet:update(dt)
+    self.y = self.y + (self.speed_y * dt)
 end
 
 return Bullet
