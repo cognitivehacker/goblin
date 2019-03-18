@@ -1,6 +1,6 @@
 local GameObject = require("GameObject")
 local conf = require("gameconf")
-
+  
 local Goblin = GameObject:new({alive=true})
 
 function Goblin:update(dt)
@@ -29,6 +29,14 @@ function Goblin:draw()
         local quad = self.animation:getCurrentQuad()
         love.graphics.draw(self.animation.spriteSheet, quad, self.x, self.y, 0)
     end
+    
+    love.graphics.setColor(1,1,1)
+    
+    for _, b in ipairs(self:getBoxes()) do 
+      print(b.width, b.height)  
+      love.graphics.rectangle('line', b.x+self.x, b.y+self.y, b.width, b.height)
+    end
+    
 end
 
 function Goblin:isAlive()

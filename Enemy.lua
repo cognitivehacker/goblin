@@ -10,6 +10,11 @@ end
 function Enemy:draw()
     local quad = self.animation:getCurrentQuad()
     love.graphics.draw(self.animation.spriteSheet, quad, self.x, self.y, 0)
+    
+    love.graphics.setColor(255, 1, 1)
+    for _, b in ipairs(self:getBoxes()) do 
+      love.graphics.rectangle('line', b.x+self.x, b.y+self.y, b.width, b.height)
+    end
 end
 
 function Enemy:isDead()
