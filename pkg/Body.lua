@@ -7,7 +7,6 @@ function Body:new(o)
   local b = o or {}
   self.__index = self
   setmetatable(b, self)
-  
   b.boxes = {}
 
   return b
@@ -19,6 +18,10 @@ end
 
 function Body:getBoxes()
   return self.boxes
+end
+
+function Body:euclidian(bodyB)
+  return math.sqrt(((bodyB.x - self.x) ^ 2) + ((bodyB.y - self.y) ^ 2));
 end
 
 function Body:collide(bodyB)

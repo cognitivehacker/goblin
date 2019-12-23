@@ -1,3 +1,4 @@
+package.path = package.path .. ";../?.lua"
 local Bullet = require('Bullet')
 local GameObject = require('GameObject')
 local Animation = require('Animation')
