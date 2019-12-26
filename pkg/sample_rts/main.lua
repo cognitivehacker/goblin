@@ -5,7 +5,7 @@ local GameObject = require('GameObject')
 local SelectGroup = require('SelectGroup')
 local Game = require('Game')
 local Box = require('Box')
-local ColisionGroup = require('ColisionGroup')
+local collision = require('Collision')
 local DistanceGroup = require('DistanceGroup')
 local conf = require("gameconf")
 local math = require("math")
@@ -20,21 +20,21 @@ UNITS_COUNT = 10
 MOOVING_SPEED = 20
 UNIT_DIMENSIONS = 20
 UNITS = {}
+SELECTED_UNITS = {}
 
-
-function Agroup(x, y)
-  local LINE_SIZE = math.ceil(math.sqrt(#UNITS))
+function Agroup(x, y, units)
+  local LINE_SIZE = math.ceil(math.sqrt(#units))
 
   local group_w = LINE_SIZE * UNIT_DIMENSIONS + (LINE_SIZE * 4)
   local start_x = x - group_w / 2
 
-  local group_h = (#UNITS / LINE_SIZE) * #UNITS
+  local group_h = (#units / LINE_SIZE) * #units
   local start_y = y - group_h / 2
 
   local count_l = 0
   local count_r = 0
-  print("$>", #UNITS)
-  for _, u in ipairs(UNITS) do
+
+  for _, u in ipairs(units) do
     local t = GameObject:new()
     count_l = count_l + 1
     t.x = start_x + count_l * UNIT_DIMENSIONS
@@ -52,23 +52,19 @@ function love.load()
 
   love.window.setMode( conf._WINDOW_WIDTH * conf._WINDOW_SCALLING_X, conf._WINDOW_HEIGHT * conf._WINDOW_SCALLING_Y, {fullscreen=conf._WINDOW_FULLSCREEN})
   game = Game:new()
-  unitColision = ColisionGroup:new()
-  unitAtakGroup = DistanceGroup:new()
 
-  selectArea =  SelectGroup:new()
+  selectArea = SelectGroup:new()
   selectArea:setBox(Box:new())
 
   game:observe(selectArea)
-  for i =1, UNITS_COUNT, 1 do
+  for i=1, UNITS_COUNT do
     local lx = math.random(1, conf._WINDOW_WIDTH)
     local ly = math.random(1, conf._WINDOW_HEIGHT)
     local box = Box:new{width=UNIT_DIMENSIONS, height=UNIT_DIMENSIONS, x=-10, y=-10}
     local u = Unit:new{x=lx, y=ly, speed_x=MOOVING_SPEED, speed_y=MOOVING_SPEED}
-    UNITS[u] = 1
+    table.insert(UNITS, u)
     u:setBox(box)
     game:observe(u)
-    unitColision:setGameObject(u)
-    unitAtakGroup:setGameObject(u)
   end
 end
 
@@ -77,25 +73,25 @@ function love.update(dt)
     return
   end
 
-  UNITS = {}
-  unitColision = ColisionGroup:new{gameObjects=game.gameObjects}
-
-  for _, u in ipairs(game.gameObjects) do
-    u.selected = false
+  for i, u in ipairs(UNITS) do
+    if u:isDead() then
+      table.remove(UNITS, i)
+    end
   end
 
-  unitColision:colideSingle(selectArea, function(u, go)
+  SELECTED_UNITS = {}
+
+  collision.ColideSingle(UNITS,  selectArea, function(u, go)
     u.selected = true
-    table.insert(UNITS, u)
-    print(u)
+    table.insert(SELECTED_UNITS, u)
   end)
 
-  print("______________________________\n")
-  
-  unitAtakGroup:selfColide(function (u1, u2)
+  collision.SelfColide(UNITS, function(u1, u2)
       u1.atackTarget = u2
       u2.atackTarget = u1
-  end, 80)
+  end, function(u1, u2)
+    return collision.Euclidian(u1, u2, 50)
+  end)
 
   game:update(dt)
   game:animate(dt)
@@ -119,7 +115,7 @@ end
 
 function love.mousereleased(x, y, button, istouch)
   if button == 2 then
-    Agroup(x, y)
+    Agroup(x, y, SELECTED_UNITS)
   elseif button == 1 then
     selectArea.alive = false
   end
