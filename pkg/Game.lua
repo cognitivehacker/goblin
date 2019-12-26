@@ -23,7 +23,6 @@ function Game:update(dt)
     if go:isDead() then
       table.remove(self.gameObjects, i)
     end
-
     go:update(dt)
   end
 end

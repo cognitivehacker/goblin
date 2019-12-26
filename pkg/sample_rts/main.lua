@@ -16,7 +16,7 @@ local unitColision
 local unitAtakGroup
 local selectArea
 
-UNITS_COUNT = 9
+UNITS_COUNT = 10
 MOOVING_SPEED = 20
 UNIT_DIMENSIONS = 20
 UNITS = {}
@@ -33,7 +33,7 @@ function Agroup(x, y)
 
   local count_l = 0
   local count_r = 0
-
+  print("$>", #UNITS)
   for _, u in ipairs(UNITS) do
     local t = GameObject:new()
     count_l = count_l + 1
@@ -78,6 +78,7 @@ function love.update(dt)
   end
 
   UNITS = {}
+  unitColision = ColisionGroup:new{gameObjects=game.gameObjects}
 
   for _, u in ipairs(game.gameObjects) do
     u.selected = false
@@ -86,16 +87,18 @@ function love.update(dt)
   unitColision:colideSingle(selectArea, function(u, go)
     u.selected = true
     table.insert(UNITS, u)
+    print(u)
   end)
 
-unitAtakGroup:selfColide(function (u1, u2)
-    print("coliding", u2.x, u2.y)
-    u1:atack(u2)
-end, 50)
+  print("______________________________\n")
+  
+  unitAtakGroup:selfColide(function (u1, u2)
+      u1.atackTarget = u2
+      u2.atackTarget = u1
+  end, 80)
 
   game:update(dt)
   game:animate(dt)
-
   game:runTimer(dt)
 end
 
@@ -103,7 +106,6 @@ function love.draw()
   love.graphics.scale(conf._WINDOW_SCALLING_X, conf._WINDOW_SCALLING_Y)
   game:draw()
 end
-
 
 function love.mousepressed(x, y, button, istouch)
   if button == 1 then
