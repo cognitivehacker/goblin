@@ -7,6 +7,7 @@ local Game = require('Game')
 local Box = require('Box')
 local collision = require('Collision')
 local helper = require('Helper')
+local gamehelper = require("RtsHelper")
 local conf = require("gameconf")
 local math = require("math")
 
@@ -14,14 +15,14 @@ local math = require("math")
 local game
 local selectArea
 
-UNITS_COUNT = 10
-MOOVING_SPEED = 20
+UNITS_COUNT = 20
+MOOVING_SPEED = 4
 UNIT_DIMENSIONS = 20
 UNITS = {}
 TEAM_BLUE = {}
 TEAM_RED = {}
 SELECTED_UNITS = {}
-UNOVERLAP_SPEED = 0.3
+UNOVERLAP_SPEED = 0.2
 
 function Agroup(x, y, units)
   local LINE_SIZE = math.ceil(math.sqrt(#units))
@@ -34,12 +35,6 @@ function Agroup(x, y, units)
 
   local count_l = 0
   local count_r = 0
-
-  -- table.sort(units, function (u1, u2)
-  --   local distance1 = helper.Euclid(u1, {x=x, y=y})
-  --   local distance2 = helper.Euclid(u2, {x=x, y=y})
-  --   return distance1 > distance2
-  -- end)
 
   for _, u in ipairs(units) do
     local t = GameObject:new()
@@ -110,37 +105,21 @@ function love.load()
 
   love.window.setMode( conf._WINDOW_WIDTH * conf._WINDOW_SCALLING_X, conf._WINDOW_HEIGHT * conf._WINDOW_SCALLING_Y, {fullscreen=conf._WINDOW_FULLSCREEN})
   game = Game:new()
+  gamehelper.StarField(game, 700)
 
   selectArea = SelectGroup:new()
   selectArea:setBox(Box:new())
+  UNITS, TEAM_RED, TEAM_BLUE = gamehelper.randomUnits(UNITS_COUNT)
 
   game:observe(selectArea)
-  for i=1, UNITS_COUNT do
-    local box = Box:new{width=UNIT_DIMENSIONS, height=UNIT_DIMENSIONS, x=-10, y=-10}
-    local u = Unit:new{speed_x=MOOVING_SPEED, speed_y=MOOVING_SPEED, id=i}
-    table.insert(UNITS, u)
-    u:setBox(box)
-    game:observe(u)
-
-    if i % 2 == 0 then 
-      table.insert(TEAM_BLUE, u)
-      u.tag = "blue"
-      u.x = math.random(1, conf._WINDOW_WIDTH / 2 - 35 )
-      u.y = math.random(1, conf._WINDOW_HEIGHT)
-    else
-      table.insert(TEAM_RED, u)
-      u.tag = "red"
-      u.x = math.random(conf._WINDOW_WIDTH / 2 + 35, conf._WINDOW_WIDTH )
-      u.y = math.random(conf._WINDOW_HEIGHT)
-    end
-  end
+  game:observeMany(UNITS)
 end
 
 function love.update(dt)
   TEAM_RED = helper.ArrFilter(TEAM_RED, RemoveDead)
   TEAM_BLUE = helper.ArrFilter(TEAM_BLUE, RemoveDead)
   UNITS = helper.ArrFilter(UNITS, RemoveDead)
-  UNITS = helper.ArrMap(UNITS, function(u)
+  helper.ArrMap(UNITS, function(u)
     u.atackTarget = nil
     return u
   end)
@@ -149,27 +128,18 @@ function love.update(dt)
     return
   end
 
-  SELECTED_UNITS = {}
-
-  -- Select
-  collision.ColideSingle(UNITS,  selectArea, function(u, go)
-    u.selected = true
-    table.insert(SELECTED_UNITS, u)
-  end)
-
   --Unoverlap
   collision.SelfColide(UNITS, function(u1, u2)
     ColideUnoverlapX(u1, u2)
     ColideUnoverlapY(u1, u2)
   end)
-  print("Selected: ", #SELECTED_UNITS)
+
   --Atack
   collision.ColideWithB(TEAM_BLUE, TEAM_RED, function(u1, u2)
       u1.atackTarget = u2
       u2.atackTarget = u1
-      print("Coliding atack: ", u1.id, u2.id)
   end, function(u1, u2)
-    return collision.Euclidian(u1, u2, 70)
+    return collision.Euclidian(u1, u2, 100)
   end)
 
   game:update(dt)
@@ -196,10 +166,7 @@ function love.mousereleased(x, y, button, istouch)
   if button == 2 then
     Agroup(x, y, SELECTED_UNITS)
   elseif button == 1 then
-    UNITS = helper.ArrMap(UNITS, function(u)
-      u.selected = false
-      return u
-    end)
-    selectArea.alive = false
+    SELECTED_UNITS = {}
+    gamehelper.SelectUnits(TEAM_BLUE, selectArea)
   end
 end
