@@ -23,7 +23,7 @@ TEAM_BLUE = {}
 TEAM_RED = {}
 SELECTED_UNITS = {}
 UNOVERLAP_SPEED = 0.2
-
+EFFECT = nil
 function Agroup(x, y, units)
   local LINE_SIZE = math.ceil(math.sqrt(#units))
 
@@ -119,14 +119,11 @@ function love.update(dt)
   TEAM_RED = helper.ArrFilter(TEAM_RED, RemoveDead)
   TEAM_BLUE = helper.ArrFilter(TEAM_BLUE, RemoveDead)
   UNITS = helper.ArrFilter(UNITS, RemoveDead)
+  SELECTED_UNITS = helper.ArrFilter(SELECTED_UNITS, RemoveDead)
   helper.ArrMap(UNITS, function(u)
     u.atackTarget = nil
     return u
   end)
-
-  if not  conf._GAME_RUNING then
-    return
-  end
 
   --Unoverlap
   collision.SelfColide(UNITS, function(u1, u2)
@@ -167,6 +164,7 @@ function love.mousereleased(x, y, button, istouch)
     Agroup(x, y, SELECTED_UNITS)
   elseif button == 1 then
     SELECTED_UNITS = {}
-    gamehelper.SelectUnits(TEAM_BLUE, selectArea)
+    -- gamehelper.SelectUnits(TEAM_BLUE, selectArea)
+    gamehelper.SelectUnits(UNITS, selectArea)
   end
 end

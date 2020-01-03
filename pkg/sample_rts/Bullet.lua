@@ -17,15 +17,15 @@ function Bullet:update(dt, game)
     local ty = self.target.y - self.y
     local dist = math.sqrt(tx* tx + ty * ty);
 
-    local speed_x = (tx / dist) * 6
-    local speed_y = (ty / dist) * 6
+    local speed_x = (tx / dist) * self.speed_x
+    local speed_y = (ty / dist) * self.speed_y
 
     self.x = self.x + speed_x
     self.y = self.y + speed_y
 
     local distance = self:euclidian(self.target)
 
-    if  distance <= 4 then
+    if  distance <= 8 then
       self.dead = true
     end
   end

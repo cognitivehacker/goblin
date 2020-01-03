@@ -12,32 +12,30 @@ local Unit = GameObject:new({
 })
 
 function Unit:update(dt, game)
-  
   if self.hp <= 0 then
     self:kill()
   end
-  
+
   if self.target then
     local x = self.x-self.target.x
     local y = self.y-self.target.y
     self.T = math.atan2(y,x)
-    
+
     local tx = self.target.x - self.x
     local ty = self.target.y - self.y
     local dist = math.sqrt(tx* tx + ty * ty);
-    
+
     self.speed_x = (tx / dist)
     self.speed_y = (ty / dist)
-    
+
     self.x = self.x + self.speed_x
     self.y = self.y + self.speed_y
-    
+
     local distance = self:euclidian(self.target)
-    
+
     if  distance < 1 then
       self.target=nil
     end
-
   end
 
   if self.atackTarget then
@@ -50,8 +48,8 @@ function Unit:atack(dt, game)
   local y = self.y-self.atackTarget.y
   self.T = math.atan2(y,x)
 
-  if self.atackRating >= 0.5 then
-    game:observe(Bullet:new{target=self.atackTarget, x=self.x, y=self.y-6})
+  if self.atackRating >= 0.35 then
+    game:observe(Bullet:new{target=self.atackTarget, x=self.x, y=self.y-6, speed_x=8, speed_y=8})
     self.atackRating = 0
     self.atackTarget.hp = self.atackTarget.hp - 10
   end
@@ -74,13 +72,13 @@ function Unit:draw(dt, game)
   else
     love.graphics.setColor(0.8, 0, 1)
   end
-  love.graphics.polygon("line", self:Polygon(8))
-  love.graphics.polygon("line", self:Polygon(4))
+  love.graphics.polygon("line", self:Polygon(6))
+  love.graphics.polygon("line", self:Polygon(3))
 
   if self.target then
     love.graphics.circle('line', self.target.x, self.target.y, 3)
     love.graphics.circle('line', self.target.x, self.target.y, 0.5)
-    love.graphics.line(self.x, self.y, self.target.x, self.target.y)
+    -- love.graphics.line(self.x, self.y, self.target.x, self.target.y)
   end
 
   if self.tag == "blue" then
