@@ -9,6 +9,7 @@ width = 0,
 height = 0,
 img = nil,
 invincible=false,
+T=0,
 dead = false,
 duration = 0,
 animation = nil
