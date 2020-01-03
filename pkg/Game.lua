@@ -18,18 +18,24 @@ function Game:observe(go)
   table.insert(self.gameObjects, go)
 end
 
+function Game:observeMany(go)
+  for _, g in ipairs(go) do
+    table.insert(self.gameObjects, g)
+  end  
+end
+
 function Game:update(dt)
   for i, go in pairs(self.gameObjects) do
     if go:isDead() then
       table.remove(self.gameObjects, i)
     end
-    go:update(dt)
+    go:update(dt, self)
   end
 end
 
-function Game:draw()
-  for i, go in pairs(self.gameObjects) do
-    go:draw(i)
+function Game:draw(dt)
+  for _, go in pairs(self.gameObjects) do
+    go:draw(dt, self)
   end
 end
 
