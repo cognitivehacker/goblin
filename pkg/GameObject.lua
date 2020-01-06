@@ -1,4 +1,4 @@
-local Body = require("Body")
+local Body = require("pkg.Body")
 
 local GameObject = {
 x = 0,

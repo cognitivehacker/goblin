@@ -1,4 +1,4 @@
-local GameObject = require("GameObject")
+local GameObject = require("pkg.GameObject")
 
 local Star = GameObject:new({
     acc=0,

@@ -1,4 +1,4 @@
-Timer = require("Timer")
+Timer = require("pkg.Timer")
 
 local Game = {}
 

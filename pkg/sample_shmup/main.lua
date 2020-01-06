@@ -1,11 +1,11 @@
 package.path = package.path .. ";../?.lua"
 local Bullet = require('Bullet')
-local GameObject = require('GameObject')
+local Goblin = require('Goblin')
 local Animation = require('Animation')
 local spritemap = require('spritemap')
 local Game = require('Game')
 local Box = require('Box')
-local Goblin = require('Goblin')
+local Item = require('Item')
 local Enemy = require('Enemy')
 local conf = require("gameconf")
 
@@ -36,15 +36,18 @@ function love.load()
   bg.image = love.graphics.newImage('images/bg.png')
   lifeIcon = love.graphics.newImage("images/lifeicon.png")
   xplosion = love.graphics.newImage("images/xplosion.png")
+  n = love.graphics.newImage("images/n.png")
 
   game = Game:new()
 
+  local item = Item:new{img=n, x=0, y=0, speed_x=59, speed_y=68, width=16, height=16}
   goblin = Goblin:new {img=goblinImage, x=100, y=200, speed_x=0, speed_y=0, width=22, height=29, animation=0.2}
   goblin.animation = Animation:new(goblinImage, spritemap.goblin_stay.quads, conf._GAME_GOBLIN_ANIMATION_SPEED, false)
   goblin.alive = true
   goblin:setBox(Box:new({x=0,y=0, width=22,height=29}))
   game:addTimer(spawn, 0.3)
   game:observe(goblin)
+  game:observe(item)
 end
 
 function love.update(dt)

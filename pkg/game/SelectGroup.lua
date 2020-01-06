@@ -1,5 +1,5 @@
 math = require("math")
-local GameObject = require("GameObject")
+local GameObject = require("pkg.GameObject")
 
 local SelectGroup = GameObject:new({
     alive=false,

@@ -1,11 +1,11 @@
-local conf = require("gameconf")
-local Star = require("Star")
-local Unit = require("Unit")
-local Box = require("Box")
+local mr = require("pkg.Helper").MicroRand
+local Box = require("pkg.Box")
+local helper = require("pkg.Helper")
+local collision = require("pkg.Collision")
+local conf = require("pkg.game.gameconf")
+local Star = require("pkg.game.Star")
+local Unit = require("pkg.game.Unit")
 local rand = require("math").random
-local mr = require("Helper").MicroRand
-local collision = require("Collision")
-local helper = require("Helper")
 local rtshelper = {}
 
 function rtshelper.SelectUnits(units, selectArea)

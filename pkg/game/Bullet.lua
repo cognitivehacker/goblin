@@ -1,5 +1,5 @@
-local GameObject = require("GameObject")
-local helper = require("Helper")
+local GameObject = require("pkg.GameObject")
+local helper = require("pkg.Helper")
 
 local Bullet = GameObject:new()
 

@@ -1,7 +1,7 @@
+local helper = require("pkg.Helper")
+local GameObject = require("pkg.GameObject")
+local Bullet = require("pkg.game.Bullet")
 local math = require("math")
-local helper = require("Helper")
-local GameObject = require("GameObject")
-local Bullet = require("Bullet")
 
 local Unit = GameObject:new({
   alive=true,
@@ -16,23 +16,24 @@ function Unit:update(dt, game)
     self:kill()
   end
 
+  
   if self.target then
+    
     local x = self.x-self.target.x
     local y = self.y-self.target.y
-    self.T = math.atan2(y,x)
-
     local tx = self.target.x - self.x
     local ty = self.target.y - self.y
     local dist = math.sqrt(tx* tx + ty * ty);
-
+    self.T = math.atan2(y,x)
+    
     self.speed_x = (tx / dist)
     self.speed_y = (ty / dist)
-
+    
     self.x = self.x + self.speed_x
     self.y = self.y + self.speed_y
-
+    
     local distance = self:euclidian(self.target)
-
+    
     if  distance < 1 then
       self.target=nil
     end

@@ -1,6 +1,5 @@
 package.path = package.path .. ";../?.lua"
 
-local Unit = require("Unit")
 local GameObject = require('GameObject')
 local SelectGroup = require('SelectGroup')
 local Game = require('Game')
