@@ -16,9 +16,8 @@ function Unit:update(dt, game)
     self:kill()
   end
 
-  
   if self.target then
-    
+
     local x = self.x-self.target.x
     local y = self.y-self.target.y
     local tx = self.target.x - self.x
@@ -60,6 +59,8 @@ function Unit:atack(dt, game)
 end
 
 function Unit:draw(dt, game)
+  love.graphics.setLineWidth(1)
+
   if not self.alive then return end
 
   if self.atackTarget then
@@ -152,4 +153,8 @@ function Unit:Polygon(size)
   return out
 end
 
+
+function Unit:__tostring()
+  return "<Unit ID:"..self.id.." HP:"..self.hp.." TAG:"..self.tag.." X:"..self.x.." Y:"..self.y..">"
+end
 return Unit

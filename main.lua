@@ -7,14 +7,14 @@ local helper = require('pkg.Helper')
 local SelectGroup = require('pkg.game.SelectGroup')
 local gamehelper = require("pkg.game.RtsHelper")
 local conf = require("pkg.game.gameconf")
-local Dbt = require("pkg.game.Dbt")
+local DominationPoint = require("pkg.game.DominationPoint")
 local math = require("math")
 
 
 local game
 local selectArea
 
-UNITS_COUNT = 20
+UNITS_COUNT = 18
 MOOVING_SPEED = 4
 UNIT_DIMENSIONS = 20
 UNITS = {}
@@ -22,7 +22,11 @@ TEAM_BLUE = {}
 TEAM_RED = {}
 SELECTED_UNITS = {}
 UNOVERLAP_SPEED = 0.2
-EFFECT = nil
+DOM_POINTS = {}
+TEAM_BLUE_CACHE = 0
+shader = nil
+
+love.graphics.clear = function() end
 
 function Agroup(x, y, units)
   local LINE_SIZE = math.ceil(math.sqrt(#units))
@@ -103,13 +107,46 @@ end
 function love.load()
   if arg[#arg] == "-debug" then require("mobdebug").start() end
 
-  
+  -- Simple 3x3 box blur
+  local shader_code = [[
+  struct Light {
+    vec2 position;
+    vec3 diffuse;
+    float power;
+  };
+
+  extern Light lights[32];
+  extern int num_lights;
+  extern vec2 screen;
+
+  const float constant = 1.0;
+  const float linear = 0.09;
+  const float quadratic = 0.032;  
+
+  vec4 effect(vec4 color, Image image, vec2 uv, vec2 screen_coords) {
+    vec4 pixel = Texel(image, uv);
+
+    vec2 norm_screen = screen_coords / screen;
+    vec3 diffuse = vec3(0);
+
+    for (int i = 0 ; i < num_lights; i++ ) {
+      Light light = lights[i];
+      vec2 norm_pos = light.position / screen;
+
+      float distance = length(norm_pos - norm_screen) * light.power;
+      float attenuation = 1.0 / ( constant + linear * distance + quadratic * (distance * distance) );
+
+      diffuse += light.diffuse * attenuation;  
+    }
+    diffuse = clamp(diffuse, 0.0, 1.0);
+    return pixel * vec4(diffuse, 1.0);
+  }
+]]
+
+  shader = love.graphics.newShader(shader_code)
+
   love.window.setMode( conf._WINDOW_WIDTH * conf._WINDOW_SCALLING_X, conf._WINDOW_HEIGHT * conf._WINDOW_SCALLING_Y, {fullscreen=conf._WINDOW_FULLSCREEN})
   game = Game:new()
-  -----
-  Triangle = Dbt:new{x=300, y=300}
-  -----
-  game:observe(Triangle)
   gamehelper.StarField(game, 700)
 
   selectArea = SelectGroup:new()
@@ -118,6 +155,17 @@ function love.load()
 
   game:observe(selectArea)
   game:observeMany(UNITS)
+
+  -- Domination Points
+  table.insert(DOM_POINTS, DominationPoint:new{ x=100, y=500 })
+  table.insert(DOM_POINTS, DominationPoint:new{ x=700, y=100 })
+  table.insert(DOM_POINTS, DominationPoint:new{ x=100, y=100 })
+  table.insert(DOM_POINTS, DominationPoint:new{ x=700, y=500 })
+  table.insert(DOM_POINTS, DominationPoint:new{ x=400, y=300 })
+
+  Agroup(70, 500, TEAM_BLUE)
+  Agroup(400, 400, TEAM_RED)
+  game:observeMany(DOM_POINTS)
 end
 
 function love.update(dt)
@@ -128,6 +176,12 @@ function love.update(dt)
   helper.ArrMap(UNITS, function(u)
     u.atackTarget = nil
     return u
+  end)
+
+  helper.ArrMap(DOM_POINTS, function(dp)
+    dp.red_invasors = {}
+    dp.blue_invasors = {}
+    return dp
   end)
 
   --Unoverlap
@@ -144,12 +198,38 @@ function love.update(dt)
     return collision.Euclidian(u1, u2, 100)
   end)
 
+  -- DominationPoint Coliision
+  collision.ColideWithB(UNITS, DOM_POINTS, function(u, dp)
+    if u.tag == "red" then
+      dp.red_invasors[u.id] = true
+    else
+      dp.blue_invasors[u.id] = true
+    end
+
+  end, function(u, dp)
+    return collision.Euclidian(u, dp, 50)
+  end)
+
   game:update(dt)
   game:animate(dt)
   game:runTimer(dt)
 end
 
 function love.draw()
+  love.graphics.setShader(shader)
+  love.graphics.setColor(0,0,0, 0.35)
+  love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+  shader:send("num_lights", #TEAM_BLUE)
+  shader:send("screen", {
+    love.graphics.getWidth(),
+    love.graphics.getHeight()
+  })
+
+  for i,u in pairs(TEAM_BLUE) do
+    shader:send("lights["..i.."].position", {u.x, u.y})
+    shader:send("lights["..i.."].diffuse", {1.0, 1.0, 1.0})
+    shader:send("lights["..i.."].power", 1000)
+  end
   love.graphics.scale(conf._WINDOW_SCALLING_X, conf._WINDOW_SCALLING_Y)
   game:draw()
 end
