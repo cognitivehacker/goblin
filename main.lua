@@ -216,7 +216,7 @@ function love.update(dt)
 end
 
 function love.draw()
-  love.graphics.setShader(shader)
+  -- love.graphics.setShader(shader)
   love.graphics.setColor(0,0,0, 0.35)
   love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
   shader:send("num_lights", #TEAM_BLUE)
