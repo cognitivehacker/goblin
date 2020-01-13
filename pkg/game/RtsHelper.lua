@@ -50,7 +50,7 @@ function rtshelper.StarField(game, density)
   density = density or 50
   local width = conf._WINDOW_WIDTH
   local height = conf._WINDOW_HEIGHT
-  
+  print(conf._WINDOW_WIDTH)
   for i=0, density do
     game:observe(Star:new{
       x=rand(0,width),

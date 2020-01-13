@@ -147,7 +147,7 @@ function love.load()
 
   love.window.setMode( conf._WINDOW_WIDTH * conf._WINDOW_SCALLING_X, conf._WINDOW_HEIGHT * conf._WINDOW_SCALLING_Y, {fullscreen=conf._WINDOW_FULLSCREEN})
   game = Game:new()
-  gamehelper.StarField(game, 700)
+  gamehelper.StarField(game, 100)
 
   selectArea = SelectGroup:new()
   selectArea:setBox(Box:new())
@@ -219,18 +219,18 @@ function love.draw()
   -- love.graphics.setShader(shader)
   love.graphics.setColor(0,0,0, 0.35)
   love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
-  shader:send("num_lights", #TEAM_BLUE)
-  shader:send("screen", {
-    love.graphics.getWidth(),
-    love.graphics.getHeight()
-  })
+  -- shader:send("num_lights", #TEAM_BLUE)
+  -- shader:send("screen", {
+  --   love.graphics.getWidth(),
+  --   love.graphics.getHeight()
+  -- })
 
-  for i,u in pairs(TEAM_BLUE) do
-    shader:send("lights["..i.."].position", {u.x, u.y})
-    shader:send("lights["..i.."].diffuse", {1.0, 1.0, 1.0})
-    shader:send("lights["..i.."].power", 1000)
-  end
-  love.graphics.scale(conf._WINDOW_SCALLING_X, conf._WINDOW_SCALLING_Y)
+  -- for i,u in pairs(TEAM_BLUE) do
+  --   shader:send("lights["..i.."].position", {u.x, u.y})
+  --   shader:send("lights["..i.."].diffuse", {1.0, 1.0, 1.0})
+  --   shader:send("lights["..i.."].power", 1000)
+  -- end
+  -- love.graphics.scale(conf._WINDOW_SCALLING_X, conf._WINDOW_SCALLING_Y)
   game:draw()
 end
 
