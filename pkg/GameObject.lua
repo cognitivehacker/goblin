@@ -12,7 +12,8 @@ invincible=false,
 T=0,
 dead = false,
 duration = 0,
-animation = nil
+animation = nil,
+boxes={},
 }
 
 function GameObject:new(o)

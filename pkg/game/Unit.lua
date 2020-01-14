@@ -74,9 +74,11 @@ function Unit:draw(dt, game)
   else
     love.graphics.setColor(0.8, 0, 1)
   end
+
   love.graphics.polygon("line", self:Polygon(6))
   love.graphics.polygon("line", self:Polygon(3))
-
+  
+  love.graphics.print(string.format("%2d , %2d", self.x, self.y), self.x-5, self.y+5)
   if self.target then
     love.graphics.circle('line', self.target.x, self.target.y, 3)
     love.graphics.circle('line', self.target.x, self.target.y, 0.5)
@@ -93,11 +95,7 @@ function Unit:draw(dt, game)
   --     love.graphics.rectangle('line', b.x+self.x, b.y+self.y, b.width, b.height)
   -- end
   love.graphics.setColor(255, 255, 255)
-  if self.selected then
-    love.graphics.circle("line", self.x, self.y-15, 1)
-  end
 end
-
 
 function Unit:drawLife()
   local b = self.boxes[1]

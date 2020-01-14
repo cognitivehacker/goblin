@@ -13,35 +13,20 @@ local DominationPoint = GameObject:new({
   dominationTime=100,
   totalTime=100,
   timeBarSize=100,
-  spawnTime=50,
-  spawnTotalTime=50
+  spawnTime=100,
+  spawnTotalTime=100
 })
 
 function DominationPoint:update(dt, game)
-
   local blue, red = self:getInvasorsSize()
-  
   local majoriti = nil
 
   if self.tag then
     self.spawnTime = self.spawnTime - dt * 30
   end
 
-  if self.spawnTime <= 0 and self.tag then
-    self.spawnTime = self.spawnTotalTime
-    local box = Box:new{width=UNIT_DIMENSIONS, height=UNIT_DIMENSIONS, x=-10, y=-10}
-    local u = Unit:new{x=self.x, y=self.y, tag=self.tag, id=math.random(1000)}
-    u:setBox(box)
-
-    table.insert(UNITS, u)
-
-    if u.tag == "red" then
-      table.insert(TEAM_RED, u)
-    else
-      table.insert(TEAM_BLUE, u)
-    end
-      
-    game:observe(u)
+  if self.spawnTime <= 0 and self.tag and self.state == "stopped" then
+    self:spawn(game)
   end
 
   if blue > red then
@@ -71,6 +56,23 @@ function DominationPoint:update(dt, game)
   if self.dominationTime <= 0 then
       self:shiftTag(blue, red)
   end
+end
+
+function DominationPoint:spawn(game)
+  self.spawnTime = self.spawnTotalTime
+  local box = Box:new{width=UNIT_DIMENSIONS, height=UNIT_DIMENSIONS, x=-10, y=-10}
+  local u = Unit:new{x=self.x, y=self.y, tag=self.tag, id=math.random(1000)}
+  u:setBox(box)
+
+  table.insert(UNITS, u)
+
+  if u.tag == "red" then
+    table.insert(TEAM_RED, u)
+  else
+    table.insert(TEAM_BLUE, u)
+  end
+
+  game:observe(u)
 end
 
 function DominationPoint:shiftTag(blue, red)

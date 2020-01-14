@@ -1,5 +1,6 @@
 local mr = require("pkg.Helper").MicroRand
 local Box = require("pkg.Box")
+local GameObject = require("pkg.GameObject")
 local helper = require("pkg.Helper")
 local collision = require("pkg.Collision")
 local conf = require("pkg.game.gameconf")
@@ -7,6 +8,8 @@ local Star = require("pkg.game.Star")
 local Unit = require("pkg.game.Unit")
 local rand = require("math").random
 local rtshelper = {}
+
+CAM_SPEED = 5
 
 function rtshelper.SelectUnits(units, selectArea)
   helper.ArrMap(units, function(u)
@@ -19,6 +22,10 @@ function rtshelper.SelectUnits(units, selectArea)
     table.insert(SELECTED_UNITS, u)
   end)
   selectArea.alive = false
+end
+
+function rtshelper.RemoveDead(u)
+  return u:isDead()
 end
 
 function rtshelper.randomUnits(units_count)
@@ -46,11 +53,26 @@ function rtshelper.randomUnits(units_count)
   return units, team_red, team_blue
 end
 
+function rtshelper.movecam(key, cam, gameObjects)
+  cam.y = 0
+  cam.x = 0
+
+  if key == "w"then
+    cam.y = - CAM_SPEED
+  elseif key == "a" and cam.x > 0 then
+    cam.x = - CAM_SPEED
+  elseif key == "s" then
+    cam.y = CAM_SPEED
+  elseif key == "d" then
+    cam.x = CAM_SPEED
+  end
+end
+
 function rtshelper.StarField(game, density)
   density = density or 50
   local width = conf._WINDOW_WIDTH
   local height = conf._WINDOW_HEIGHT
-  print(conf._WINDOW_WIDTH)
+
   for i=0, density do
     game:observe(Star:new{
       x=rand(0,width),
@@ -64,6 +86,78 @@ function rtshelper.StarField(game, density)
       b=mr(50, 80),
     })
   end
+end
+
+function rtshelper.Agroup(x, y, units)
+  local LINE_SIZE = math.ceil(math.sqrt(#units))
+
+  local group_w = LINE_SIZE * UNIT_DIMENSIONS + (LINE_SIZE * 4)
+  local start_x = x - group_w / 2
+
+  local group_h = (#units / LINE_SIZE) * #units
+  local start_y = y - group_h / 2
+
+  local count_l = 0
+  local count_r = 0
+
+  for _, u in ipairs(units) do
+    local t = GameObject:new()
+    count_l = count_l + 1
+    t.x = start_x + count_l * UNIT_DIMENSIONS
+    t.y = start_y + count_r * UNIT_DIMENSIONS
+    u.target = t
+    if count_l == LINE_SIZE then
+      count_l = 0
+      count_r = count_r + 1
+    end
+  end
+end
+
+function rtshelper.DetectColisionSideX(r1, r2)
+  local ra1 = (r1.x + r1.width) / 2
+  local ra2 = (r2.x + r2.width) / 2
+  if ra1 < ra2 then
+      return "right"
+  end
+
+  return "left"
+end
+
+function rtshelper.DetectColisionSideY(r1, r2)
+  local ra1 = (r1.y + r1.height) / 2
+  local ra2 = (r2.y + r2.height) / 2
+
+  if ra1 < ra2 then
+      return "up"
+  end
+
+  return "bottom"
+end
+
+function rtshelper.ColideUnoverlapX(u1, u2)
+  local r1side = rtshelper.DetectColisionSideX(u1, u2)
+
+  if r1side == "left" then
+      u1.x = u1.x + math.random(0, UNOVERLAP_SPEED)
+      u2.x = u2.x - math.random(0, UNOVERLAP_SPEED)
+      return
+  end
+
+  u1.x = u1.x - math.random(0, UNOVERLAP_SPEED)
+  u2.x = u2.x + math.random(0, UNOVERLAP_SPEED)
+end
+
+function rtshelper.ColideUnoverlapY(u1, u2)
+  local r1side = rtshelper.DetectColisionSideY(u1, u2)
+
+  if r1side == "up" then
+      u1.y = u1.y - math.random(0, UNOVERLAP_SPEED)
+      u2.y = u2.y + math.random(0, UNOVERLAP_SPEED)
+      return
+  end
+
+  u1.y = u1.y + math.random(0, UNOVERLAP_SPEED)
+  u2.y = u2.y - math.random(0, UNOVERLAP_SPEED)
 end
 
 return rtshelper

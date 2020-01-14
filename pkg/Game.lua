@@ -33,14 +33,14 @@ function Game:update(dt)
   end
 end
 
-function Game:draw(dt)
+function Game:draw(dt, cam)
   for _, go in pairs(self.gameObjects) do
     go:draw(dt, self)
   end
 end
 
 function Game:addTimer(exec, seconds, times, onDead)
-  t = Timer:new{exec=exec, seconds=seconds, times=times, onDead=onDead}
+  local t = Timer:new{exec=exec, seconds=seconds, times=times, onDead=onDead}
   self:setTimer(t)
 end
 
