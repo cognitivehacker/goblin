@@ -1,7 +1,6 @@
 # goblin
 
-## An implementation of Colision and rts logics.
-
+## Rts example 
 
 ### Dependencies.
 - (lua)[https://www.lua.org/download.html]

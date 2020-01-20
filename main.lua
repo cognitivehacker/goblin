@@ -3,7 +3,6 @@ local Box = require('pkg.Box')
 local collision = require('pkg.Collision')
 local helper = require('pkg.Helper')
 local SelectGroup = require('pkg.game.SelectGroup')
-local Cam = require('pkg.game.Cam')
 local gamehelper = require("pkg.game.RtsHelper")
 local conf = require("pkg.game.gameconf")
 local DominationPoint = require("pkg.game.DominationPoint")
@@ -12,7 +11,6 @@ local DominationPoint = require("pkg.game.DominationPoint")
 local game
 local selectArea
 
-CAM = nil
 UNITS_COUNT = 18
 MOOVING_SPEED = 4
 UNIT_DIMENSIONS = 20
@@ -70,22 +68,13 @@ function love.load()
   }
 ]]
 
-  CAM = Cam:new{
-    x=0,
-    y=0,
-  }
-  CAM:setBox(Box:new{
-    width = love.graphics.getWidth(),
-    height = love.graphics.getWidth()}
-  )
-
   CANVAS_LIGHT = love.graphics.newCanvas(conf._WINDOW_WIDTH, conf._WINDOW_HEIGHT)
 
   SHADER = love.graphics.newShader(shader_code)
 
   love.window.setMode( conf._WINDOW_WIDTH * conf._WINDOW_SCALLING_X, conf._WINDOW_HEIGHT * conf._WINDOW_SCALLING_Y, {fullscreen=conf._WINDOW_FULLSCREEN})
   game = Game:new()
-  gamehelper.StarField(game, 100)
+  gamehelper.StarField(game, 1000, 1200, 1200)
 
   selectArea = SelectGroup:new()
   selectArea:setBox(Box:new())
@@ -94,11 +83,11 @@ function love.load()
   game:observeMany(UNITS)
 
   -- Domination Points
-  table.insert(DOM_POINTS, DominationPoint:new{ x=100, y=500 })
-  table.insert(DOM_POINTS, DominationPoint:new{ x=700, y=100 })
+  table.insert(DOM_POINTS, DominationPoint:new{ x=100, y=1000 })
+  table.insert(DOM_POINTS, DominationPoint:new{ x=1400, y=100 })
   table.insert(DOM_POINTS, DominationPoint:new{ x=100, y=100, tag="red"})
-  table.insert(DOM_POINTS, DominationPoint:new{ x=700, y=500, tag="blue" })
-  table.insert(DOM_POINTS, DominationPoint:new{ x=400, y=300 })
+  table.insert(DOM_POINTS, DominationPoint:new{ x=1400, y=1000, tag="blue" })
+  table.insert(DOM_POINTS, DominationPoint:new{ x=800, y=600 })
 
   game:observeMany(DOM_POINTS)
 end
@@ -117,10 +106,6 @@ function love.update(dt)
     dp.red_invasors = {}
     dp.blue_invasors = {}
     return dp
-  end)
-
-  -- Object enter in camera
-  collision.ColideSingle(UNITS, CAM, function(u, cam) 
   end)
 
   --Unoverlap
@@ -175,27 +160,30 @@ function love.draw(dt)
   for i=1, #UNITS do
     SHADER:send("lights["..i.."].diffuse", {0, 0, 0})
   end
+
   for i,u in pairs(SELECTED_UNITS) do
-    SHADER:send("lights["..i.."].position", {u.x, u.y})
+    SHADER:send("lights["..i.."].position", {u.x-game.camera.offsetX, u.y-game.camera.offsetY})
     SHADER:send("lights["..i.."].diffuse", {0, 1.0, 1.0})
     SHADER:send("lights["..i.."].power", 850)
   end
 
   love.graphics.scale(conf._WINDOW_SCALLING_X, conf._WINDOW_SCALLING_Y)
-  game:draw(dt, CAM)
+  game:draw(dt)
 
   love.graphics.setCanvas()
   love.graphics.setShader()
 
   love.graphics.draw(CANVAS_LIGHT, 0, 0)
-  game:draw(dt, CAM)
+  game:draw(dt)
 end
 
 function love.mousepressed(x, y, button, istouch)
   if button == 1 then
     if not selectArea:isAlive() then
-      selectArea.x = x
-      selectArea.y = y
+      local offsetx = game.camera.offsetX
+      local offsety = game.camera.offsetY
+      selectArea.x = x + offsetx
+      selectArea.y = y + offsety
       selectArea.alive = true
     end
   end
@@ -203,7 +191,7 @@ end
 
 function love.mousereleased(x, y, button, istouch)
   if button == 2 then
-    gamehelper.Agroup(x, y, SELECTED_UNITS)
+    gamehelper.Agroup(x+game.camera.offsetX, y+game.camera.offsetY, SELECTED_UNITS)
   elseif button == 1 then
     SELECTED_UNITS = {}
     -- gamehelper.SelectUnits(TEAM_BLUE, selectArea)
@@ -212,6 +200,6 @@ function love.mousereleased(x, y, button, istouch)
 end
 
 function love.keypressed(key, scancode, isrepeat)
-  gamehelper.movecam(key, CAM, game.gameObjects)
+  gamehelper.movecam(key, game.camera)
 end
 

@@ -1,6 +1,11 @@
-Timer = require("pkg.Timer")
+local Timer = require("pkg.Timer")
+local Camera = require("pkg.Camera")
 
-local Game = {}
+local Game = {
+  gameObjects={},
+  timers={},
+  camera=nil,
+}
 
 -- update and draw all Game Objects
 -- factory new Game Objects
@@ -9,8 +14,10 @@ function Game:new(o)
   self.__index = self
   setmetatable(game, self)
 
-  game.gameObjects = {}
-  game.timers = {}
+  game.camera = Camera:new()
+  game.camera.boundaryX = love.graphics.getWidth()
+  game.camera.boundaryY = love.graphics.getHeight()
+
   return game
 end
 
