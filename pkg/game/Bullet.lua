@@ -32,14 +32,17 @@ function Bullet:update(dt, game)
 end
 
 function Bullet:draw(dt, game)
+  local x=game.camera.offsetX
+  local y=game.camera.offsetY
+
   if self.dead then return end
   
   love.graphics.setColor(255, 255, 255)
-  love.graphics.line(self:Polygon(4))
+  love.graphics.line(self:Polygon(4, x, y))
   
 end
 
-function Bullet:Polygon(size)
+function Bullet:Polygon(size, camX, camY)
   size = size or 10
   
   local cost = math.cos(self.T)
@@ -58,8 +61,8 @@ function Bullet:Polygon(size)
   end)
 
   for _, v in pairs(vertices) do 
-    table.insert(out, self.x+v[1])
-    table.insert(out, self.y+v[2])
+    table.insert(out, self.x-camX+v[1])
+    table.insert(out, self.y-camY+v[2])
   end
 
   return out

@@ -9,7 +9,7 @@ local Unit = require("pkg.game.Unit")
 local rand = require("math").random
 local rtshelper = {}
 
-CAM_SPEED = 5
+CAM_SPEED = 40
 
 function rtshelper.SelectUnits(units, selectArea)
   helper.ArrMap(units, function(u)
@@ -53,25 +53,20 @@ function rtshelper.randomUnits(units_count)
   return units, team_red, team_blue
 end
 
-function rtshelper.movecam(key, cam, gameObjects)
-  cam.y = 0
-  cam.x = 0
-
+function rtshelper.movecam(key, cam)
   if key == "w"then
-    cam.y = - CAM_SPEED
-  elseif key == "a" and cam.x > 0 then
-    cam.x = - CAM_SPEED
+    cam:up(CAM_SPEED)
+  elseif key == "a" then
+    cam:left(CAM_SPEED)
   elseif key == "s" then
-    cam.y = CAM_SPEED
+    cam:down(CAM_SPEED)
   elseif key == "d" then
-    cam.x = CAM_SPEED
+    cam:right(CAM_SPEED)
   end
 end
 
-function rtshelper.StarField(game, density)
+function rtshelper.StarField(game, density, width, height)
   density = density or 50
-  local width = conf._WINDOW_WIDTH
-  local height = conf._WINDOW_HEIGHT
 
   for i=0, density do
     game:observe(Star:new{

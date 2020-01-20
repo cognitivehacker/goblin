@@ -82,6 +82,9 @@ function DominationPoint:shiftTag(blue, red)
 end
 
 function DominationPoint:draw(dt, game)
+  local offX = game.camera.offsetX
+  local offY = game.camera.offsetY
+
   if not self.tag then
     love.graphics.setColor(1, 1, 1)
   elseif self.tag == "blue" then
@@ -90,15 +93,15 @@ function DominationPoint:draw(dt, game)
     love.graphics.setColor(0.8, 0, 1)
   end
 
-  love.graphics.circle("line", self.x, self.y, self.radius)
-  self:drawTime()
+  love.graphics.circle("line", self.x-offX, self.y-offY, self.radius)
+  self:drawTime({x=offX,y=offY})
 end
 
-function DominationPoint:drawTime()
+function DominationPoint:drawTime(offset)
   local percent = ((self.dominationTime * 100) / self.totalTime) / 100
   love.graphics.setLineWidth(3)
   local x = self.x - 50
-  love.graphics.line(x, self.y, x + (self.timeBarSize * percent), self.y)
+  love.graphics.line(x-offset.x, self.y-offset.y, x + (self.timeBarSize * percent)-offset.x, self.y-offset.y)
 end
 
 function DominationPoint:getInvasorsSize()
