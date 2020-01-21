@@ -87,7 +87,7 @@ function love.load()
   table.insert(DOM_POINTS, DominationPoint:new{ x=1400, y=100 })
   table.insert(DOM_POINTS, DominationPoint:new{ x=100, y=100, tag="red"})
   table.insert(DOM_POINTS, DominationPoint:new{ x=1400, y=1000, tag="blue" })
-  table.insert(DOM_POINTS, DominationPoint:new{ x=800, y=600 })
+  table.insert(DOM_POINTS, DominationPoint:new{ x=800, y=600, tag='blue' })
 
   game:observeMany(DOM_POINTS)
 end

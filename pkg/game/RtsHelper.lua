@@ -7,7 +7,11 @@ local conf = require("pkg.game.gameconf")
 local Star = require("pkg.game.Star")
 local Unit = require("pkg.game.Unit")
 local rand = require("math").random
+
 local rtshelper = {}
+
+rtshelper.BLUE_COLOR = {0, 0.56, 1}
+rtshelper.RED_COLOR = {0.8, 0, 1}
 
 CAM_SPEED = 40
 
@@ -27,6 +31,7 @@ end
 function rtshelper.RemoveDead(u)
   return u:isDead()
 end
+
 
 function rtshelper.randomUnits(units_count)
   local team_blue = {}

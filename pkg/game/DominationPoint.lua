@@ -1,4 +1,5 @@
 local GameObject = require("pkg.GameObject")
+local gamehelper = require("pkg.game.RtsHelper")
 local Box = require("pkg.Box")
 local Unit = require("pkg.game.Unit")
 local DominationPoint = GameObject:new({
@@ -68,8 +69,10 @@ function DominationPoint:spawn(game)
 
   if u.tag == "red" then
     table.insert(TEAM_RED, u)
+    u.color = gamehelper.RED_COLOR
   else
     table.insert(TEAM_BLUE, u)
+    u.color = gamehelper.BLUE_COLOR
   end
 
   game:observe(u)
@@ -99,7 +102,6 @@ end
 
 function DominationPoint:drawTime(offset)
   local percent = ((self.dominationTime * 100) / self.totalTime) / 100
-  love.graphics.setLineWidth(3)
   local x = self.x - 50
   love.graphics.line(x-offset.x, self.y-offset.y, x + (self.timeBarSize * percent)-offset.x, self.y-offset.y)
 end

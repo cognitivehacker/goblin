@@ -1,4 +1,5 @@
 local helper = require("pkg.Helper")
+local Particle = require("pkg.game.Particle")
 local GameObject = require("pkg.GameObject")
 local Bullet = require("pkg.game.Bullet")
 local math = require("math")
@@ -8,12 +9,13 @@ local Unit = GameObject:new({
   target=nil,
   T=0,
   hp=100,
-  atackRating=0
+  atackRating=0,
+  color=nil
 })
 
 function Unit:update(dt, game)
   if self.hp <= 0 then
-    self:kill()
+    self:kill(game)
   end
 
   if self.target then
@@ -74,11 +76,7 @@ function Unit:draw(dt, game)
 
   self:drawLife(offset)
 
-  if self.tag == "blue" then
-    love.graphics.setColor(0, 0.56, 1)
-  else
-    love.graphics.setColor(0.8, 0, 1)
-  end
+  love.graphics.setColor(self.color[1], self.color[2], self.color[3])
 
   love.graphics.polygon("line", self:Polygon(6, offset))
   love.graphics.polygon("line", self:Polygon(4, offset))
@@ -96,9 +94,6 @@ function Unit:draw(dt, game)
     love.graphics.setColor(0.13, 0, 0)
   end
 
-  -- for _, b in ipairs(self:getBoxes()) do
-  --     love.graphics.rectangle('line', b.x+self.x, b.y+self.y, b.width, b.height)
-  -- end
   love.graphics.setColor(255, 255, 255)
 end
 
@@ -121,7 +116,8 @@ function Unit:isAlive()
   return self.alive
 end
 
-function Unit:kill()
+function Unit:kill(game)
+  Particle.Explode(50, game, self.x, self.y, self.color)
   self.alive = false
   self.dead = true
 end
