@@ -1,10 +1,12 @@
 local Timer = require("pkg.Timer")
 local Camera = require("pkg.Camera")
+local Collision = require("pkg.Collision")
 
 local Game = {
   gameObjects={},
   timers={},
   camera=nil,
+  debug=false
 }
 
 -- update and draw all Game Objects
@@ -28,7 +30,7 @@ end
 function Game:observeMany(go)
   for _, g in ipairs(go) do
     table.insert(self.gameObjects, g)
-  end  
+  end
 end
 
 function Game:update(dt)
@@ -40,9 +42,18 @@ function Game:update(dt)
   end
 end
 
-function Game:draw(dt, cam)
+function Game:debug(debug)
+  self.debug = debug
+end
+
+function Game:draw()
   for _, go in pairs(self.gameObjects) do
-    go:draw(dt, self)
+    if go:collide(self.camera) then
+      go:draw(self)
+    end
+    if self.debug then
+      -- love.graphics.rectangle('line', go.x, go.y, go.boxes[1].width, go.boxes[1].height)
+    end
   end
 end
 
@@ -66,7 +77,7 @@ function Game:runTimer(dt)
 end
 
 function Game:animate(dt)
-  for i, go in pairs(self.gameObjects) do
+  for _, go in pairs(self.gameObjects) do
     if go.animation then
       go.animation:step(dt)
     end

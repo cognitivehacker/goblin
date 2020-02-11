@@ -18,7 +18,7 @@ function SelectGroup:update(dt, game)
     end
 end
 
-function SelectGroup:draw(dt, game)
+function SelectGroup:draw(game)
     local x=game.camera.offsetX
     local y=game.camera.offsetY
 

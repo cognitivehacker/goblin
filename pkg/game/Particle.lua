@@ -26,7 +26,7 @@ function Particle:update(dt)
     end
 end
 
-function Particle:draw(dt, game)
+function Particle:draw(game)
     local x = game.camera.offsetX
     local y = game.camera.offsetY
 

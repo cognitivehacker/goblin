@@ -15,7 +15,7 @@ local DominationPoint = GameObject:new({
   totalTime=100,
   timeBarSize=100,
   spawnTime=100,
-  spawnTotalTime=100
+  spawnTotalTime=100,
 })
 
 function DominationPoint:update(dt, game)
@@ -84,7 +84,7 @@ function DominationPoint:shiftTag(blue, red)
   self.tag = blue > red and "blue" or "red"
 end
 
-function DominationPoint:draw(dt, game)
+function DominationPoint:draw(game)
   local offX = game.camera.offsetX
   local offY = game.camera.offsetY
 

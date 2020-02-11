@@ -1,8 +1,16 @@
+local Box = require("pkg.Box")
+
 local Camera = {
   offsetX=0,
   offsetY=0,
+  x=0,
+  y=0,
+  width=0,
+  height=0,
   boundaryX=0,
   boundaryY=0,
+  boxes={},
+  offsetSize=400,
 }
 
 function Camera:new(o)
@@ -10,7 +18,16 @@ function Camera:new(o)
   self.__index = self
   setmetatable(cam, self)
 
+  cam.width = love.graphics.getWidth()
+  cam.height = love.graphics.getHeight()
+
+  table.insert(self.boxes, Box:new{x=self.x-self.offsetSize, y=self.y-self.offsetSize, width=cam.width+self.offsetSize*2, height=cam.height+self.offsetSize*2})
+
   return cam
+end
+
+function Camera:getBoxes()
+  return self.boxes
 end
 
 function Camera:up(y)
@@ -18,6 +35,7 @@ function Camera:up(y)
 
   y = y or 1
   self.offsetY = self.offsetY - y
+  self.y = self.offsetY
 end
 
 function Camera:down(y)
@@ -25,6 +43,7 @@ function Camera:down(y)
 
   y = y or 1
   self.offsetY = self.offsetY + y
+  self.y = self.offsetY
 end
 
 function Camera:left(x)
@@ -32,6 +51,7 @@ function Camera:left(x)
 
   x = x or 1
   self.offsetX = self.offsetX - x
+  self.x = self.offsetX
 end
 
 function Camera:right(x)
@@ -39,6 +59,7 @@ function Camera:right(x)
 
   x = x or 1
   self.offsetX = self.offsetX + x
+  self.x = self.offsetX
 end
 
 return Camera

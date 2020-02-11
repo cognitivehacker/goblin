@@ -16,7 +16,7 @@ function Star:update(dt)
     end
 end
 
-function Star:draw(dt, game)
+function Star:draw(game)
     local offX = game.camera.offsetX
     local offY = game.camera.offsetY
 

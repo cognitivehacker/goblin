@@ -10,7 +10,8 @@ local Unit = GameObject:new({
   T=0,
   hp=100,
   atackRating=0,
-  color=nil
+  color=nil,
+  selected=false
 })
 
 function Unit:update(dt, game)
@@ -26,15 +27,15 @@ function Unit:update(dt, game)
     local ty = self.target.y - self.y
     local dist = math.sqrt(tx* tx + ty * ty);
     self.T = math.atan2(y,x)
-    
+
     self.speed_x = (tx / dist)
     self.speed_y = (ty / dist)
-    
+
     self.x = self.x + self.speed_x
     self.y = self.y + self.speed_y
-    
+
     local distance = self:euclidian(self.target)
-    
+
     if  distance < 1 then
       self.target=nil
     end
@@ -60,7 +61,7 @@ function Unit:atack(dt, game)
   if not self.atackTarget:isAlive() then self.atackTarget = nil end
 end
 
-function Unit:draw(dt, game)
+function Unit:draw(game)
   local offset = {
     x= game.camera.offsetX,
     y= game.camera.offsetY,
@@ -82,7 +83,7 @@ function Unit:draw(dt, game)
   love.graphics.polygon("line", self:Polygon(4, offset))
   
   -- love.graphics.print(string.format("%2d , %2d", self.x, self.y), self.x-5, self.y+5)
-  if self.target then
+  if self.target and self.selected then
     love.graphics.circle('line', self.target.x-offset.x, self.target.y-offset.y, 3)
     love.graphics.circle('line', self.target.x-offset.x, self.target.y-offset.y, 0.5)
     -- love.graphics.line(self.x, self.y, self.target.x, self.target.y)
@@ -100,15 +101,16 @@ end
 function Unit:drawLife(offset)
   local b = self.boxes[1]
 
-  local x1 = self.x+b.x
-  local y1 = self.y+b.height
+  local x1 = self.x - 10
+  local y1 = self.y+15
 
   local percent = (100*self.hp) / 500
   
   local x2 = x1 + percent
-  local y2 = self.y+b.height
+  local y2 = self.y+15
   
   love.graphics.setColor(0.5, 1, 0)
+  love.graphics.line(x1-offset.x, y1-offset.y, x2-offset.x, y2-offset.y)
   love.graphics.line(x1-offset.x, y1-offset.y, x2-offset.x, y2-offset.y)
 end
 

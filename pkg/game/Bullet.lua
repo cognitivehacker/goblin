@@ -31,7 +31,7 @@ function Bullet:update(dt, game)
   end
 end
 
-function Bullet:draw(dt, game)
+function Bullet:draw(game)
   local x=game.camera.offsetX
   local y=game.camera.offsetY
 

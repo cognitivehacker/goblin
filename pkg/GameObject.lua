@@ -1,4 +1,4 @@
-local Body = require("pkg.Body")
+local Box = require("pkg.Box")
 
 local GameObject = {
 x = 0,
@@ -21,8 +21,17 @@ function GameObject:new(o)
   self.__index = self
   setmetatable(b, self)
   b.boxes = {}
-
+  b:init()
   return b
+end
+
+function GameObject:init()
+  table.insert(self.boxes, Box:new{
+    x=0,
+    y=0,
+    width=1,
+    height=1,
+  })
 end
 
 function GameObject:isDead()
@@ -47,18 +56,18 @@ end
 
 function GameObject:collide(bodyB)
   if self.invincible or bodyB.invincible then return false end
-  for  _, a in ipairs(self:getBoxes()) do         
+  for  _, a in ipairs(self:getBoxes()) do
     for _, b in ipairs(bodyB:getBoxes()) do
-      if a.x + self.x < bodyB.x + b.x + b.width 
-      and self.x + a.x + a.width > b.x + bodyB.x 
+      if a.x + self.x < bodyB.x + b.x + b.width
+      and self.x + a.x + a.width > b.x + bodyB.x
       and a.y + self.y < b.y + b.height + bodyB.y
       and a.height + a.y + self.y  > b.y + bodyB.y
       then
-        return true;
+        return true
       end
     end
   end
-  return false;
+  return false
 end
 
 
