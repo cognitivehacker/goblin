@@ -9,13 +9,38 @@ local SelectGroup = GameObject:new({
 function SelectGroup:update(dt, game)
     local x=game.camera.offsetX
     local y=game.camera.offsetY
-    
+
     if self:isAlive() then
-        local width = love.mouse.getX() - (self.x - x)
-        local height = love.mouse.getY() - (self.y - y)
-        self.boxes[1].width = width
-        self.boxes[1].height = height
+        local Xlenght = love.mouse.getX() - (self.x - x)
+        local Ylenght = love.mouse.getY() - (self.y - y)
+
+        self.boxes[1].width = Xlenght
+        self.boxes[1].height = Ylenght
+
+        print(self.x, self.y, self.boxes[1].width, self.boxes[1].height )
     end
+end
+
+function SelectGroup:invertSquareCoordinates(game)
+    print(game)
+    local x=game.camera.offsetX
+    local y=game.camera.offsetY
+
+    local Xlenght = love.mouse.getX() - (self.x - x)
+    local Ylenght = love.mouse.getY() - (self.y - y)
+
+    if Xlenght < 0 then
+        self.x = self.x + Xlenght
+        Xlenght = Xlenght * -1
+    end
+
+    if Ylenght < 0 then
+        self.y = self.y + Ylenght
+        Ylenght = Ylenght * -1
+    end
+
+    self.boxes[1].width = Xlenght
+    self.boxes[1].height = Ylenght
 end
 
 function SelectGroup:draw(game)

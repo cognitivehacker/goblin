@@ -146,34 +146,34 @@ function love.update(dt)
 end
 
 function love.draw(dt)
-  love.graphics.setCanvas(CANVAS_LIGHT)
+  -- love.graphics.setCanvas(CANVAS_LIGHT)
 
-  love.graphics.setShader(SHADER)
-  love.graphics.setColor(0,0,0, 0.005)
-  love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
-  SHADER:send("num_lights", #UNITS)
-  SHADER:send("screen", {
-    love.graphics.getWidth(),
-    love.graphics.getHeight()
-  })
+  -- love.graphics.setShader(SHADER)
+  -- love.graphics.setColor(0,0,0, 0.005)
+  -- love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+  -- SHADER:send("num_lights", #UNITS)
+  -- SHADER:send("screen", {
+  --   love.graphics.getWidth(),
+  --   love.graphics.getHeight()
+  -- })
 
-  for i=1, #UNITS do
-    SHADER:send("lights["..i.."].diffuse", {0, 0, 0})
-  end
+  -- for i=1, #UNITS do
+  --   SHADER:send("lights["..i.."].diffuse", {0, 0, 0})
+  -- end
 
-  for i,u in pairs(SELECTED_UNITS) do
-    SHADER:send("lights["..i.."].position", {u.x-game.camera.offsetX, u.y-game.camera.offsetY})
-    SHADER:send("lights["..i.."].diffuse", {0, 1.0, 1.0})
-    SHADER:send("lights["..i.."].power", 850)
-  end
+  -- for i,u in pairs(SELECTED_UNITS) do
+  --   SHADER:send("lights["..i.."].position", {u.x-game.camera.offsetX, u.y-game.camera.offsetY})
+  --   SHADER:send("lights["..i.."].diffuse", {0, 1.0, 1.0})
+  --   SHADER:send("lights["..i.."].power", 850)
+  -- end
 
-  love.graphics.scale(conf._WINDOW_SCALLING_X, conf._WINDOW_SCALLING_Y)
-  game:draw(dt)
+  -- love.graphics.scale(conf._WINDOW_SCALLING_X, conf._WINDOW_SCALLING_Y)
+  -- game:draw(dt)
 
-  love.graphics.setCanvas()
-  love.graphics.setShader()
+  -- love.graphics.setCanvas()
+  -- love.graphics.setShader()
 
-  love.graphics.draw(CANVAS_LIGHT, 0, 0)
+  -- love.graphics.draw(CANVAS_LIGHT, 0, 0)
   game:draw(dt)
 end
 
@@ -195,6 +195,8 @@ function love.mousereleased(x, y, button, istouch)
   elseif button == 1 then
     SELECTED_UNITS = {}
     -- gamehelper.SelectUnits(TEAM_BLUE, selectArea)
+    print(game)
+    selectArea:invertSquareCoordinates(game)
     gamehelper.SelectUnits(UNITS, selectArea)
   end
 end

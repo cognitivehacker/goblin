@@ -83,10 +83,13 @@ function Unit:draw(game)
   love.graphics.polygon("line", self:Polygon(4, offset))
   
   -- love.graphics.print(string.format("%2d , %2d", self.x, self.y), self.x-5, self.y+5)
+  if self.selected then
+    love.graphics.circle('line', self.x-offset.x, self.y-offset.y-15, 3)
+  end
+
   if self.target and self.selected then
     love.graphics.circle('line', self.target.x-offset.x, self.target.y-offset.y, 3)
     love.graphics.circle('line', self.target.x-offset.x, self.target.y-offset.y, 0.5)
-    -- love.graphics.line(self.x, self.y, self.target.x, self.target.y)
   end
 
   if self.tag == "blue" then
