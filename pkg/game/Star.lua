@@ -5,7 +5,7 @@ local Star = GameObject:new({
     acc_speed=0.01,
     acc_max=1,
     acc_min=0,
-    paralax=0.02
+    paralax=1
 })
 
 function Star:update(dt)
@@ -17,12 +17,9 @@ function Star:update(dt)
 end
 
 function Star:draw(game)
-    local offX = game.camera.offsetX
-    local offY = game.camera.offsetY
-
     local ac = self.acc
     love.graphics.setColor(self.r*ac,self.g*ac,self.b*ac)
-    love.graphics.rectangle("fill", self.x-offX*self.paralax, self.y-offY*self.paralax, 2*ac, 2*ac)
+    love.graphics.rectangle("fill", self.x*self.paralax, self.y*self.paralax, 2*ac, 2*ac)
 end
 
 return Star

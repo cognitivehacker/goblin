@@ -27,11 +27,8 @@ function Particle:update(dt)
 end
 
 function Particle:draw(game)
-    local x = game.camera.offsetX
-    local y = game.camera.offsetY
-
     love.graphics.setColor(self.rgb[1]*self.tpercent, self.rgb[2]*self.tpercent, self.rgb[3]*self.tpercent)
-    love.graphics.rectangle('line', self.x-x, self.y-y, 1, 1)
+    love.graphics.rectangle('line', self.x, self.y, 1, 1)
 end
 
 

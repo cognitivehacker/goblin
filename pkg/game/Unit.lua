@@ -62,11 +62,6 @@ function Unit:atack(dt, game)
 end
 
 function Unit:draw(game)
-  local offset = {
-    x= game.camera.offsetX,
-    y= game.camera.offsetY,
-  }
-
   love.graphics.setLineWidth(1)
 
   if not self.alive then return end
@@ -75,21 +70,21 @@ function Unit:draw(game)
   --   love.graphics.print(self.atackTarget.id, self.x+10, self.y+10, 0, 0.6, 0.6)
   -- end
 
-  self:drawLife(offset)
+  self:drawLife()
 
   love.graphics.setColor(self.color[1], self.color[2], self.color[3])
 
-  love.graphics.polygon("line", self:Polygon(6, offset))
-  love.graphics.polygon("line", self:Polygon(4, offset))
+  love.graphics.polygon("line", self:Polygon(6))
+  love.graphics.polygon("line", self:Polygon(4))
   
   -- love.graphics.print(string.format("%2d , %2d", self.x, self.y), self.x-5, self.y+5)
   if self.selected then
-    love.graphics.circle('line', self.x-offset.x, self.y-offset.y-15, 3)
+    love.graphics.circle('line', self.x, self.y-15, 3)
   end
 
   if self.target and self.selected then
-    love.graphics.circle('line', self.target.x-offset.x, self.target.y-offset.y, 3)
-    love.graphics.circle('line', self.target.x-offset.x, self.target.y-offset.y, 0.5)
+    love.graphics.circle('line', self.target.x, self.target.y, 3)
+    love.graphics.circle('line', self.target.x, self.target.y, 0.5)
   end
 
   if self.tag == "blue" then
@@ -101,7 +96,7 @@ function Unit:draw(game)
   love.graphics.setColor(255, 255, 255)
 end
 
-function Unit:drawLife(offset)
+function Unit:drawLife()
   local b = self.boxes[1]
 
   local x1 = self.x - 10
@@ -113,8 +108,8 @@ function Unit:drawLife(offset)
   local y2 = self.y+15
   
   love.graphics.setColor(0.5, 1, 0)
-  love.graphics.line(x1-offset.x, y1-offset.y, x2-offset.x, y2-offset.y)
-  love.graphics.line(x1-offset.x, y1-offset.y, x2-offset.x, y2-offset.y)
+  love.graphics.line(x1, y1, x2, y2)
+  love.graphics.line(x1, y1, x2, y2)
 end
 
 function Unit:isAlive()
@@ -127,7 +122,7 @@ function Unit:kill(game)
   self.dead = true
 end
 
-function Unit:Polygon(size, offset)
+function Unit:Polygon(size)
   size = size or 10
   
   local cost = math.cos(self.T)
@@ -149,8 +144,8 @@ function Unit:Polygon(size, offset)
   end)
 
   for _, v in pairs(vertices) do 
-    table.insert(out, self.x-offset.x+v[1])
-    table.insert(out, self.y-offset.y+v[2])
+    table.insert(out, self.x+v[1])
+    table.insert(out, self.y+v[2])
   end
   
   return out

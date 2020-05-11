@@ -47,9 +47,10 @@ function Game:debug(debug)
 end
 
 function Game:draw()
+  love.graphics.translate(self.camera.x*-1, self.camera.y*-1)
   for _, go in pairs(self.gameObjects) do
     if go:collide(self.camera) then
-      go:draw(self)
+      go:draw(self,{x=se})
     end
     if self.debug then
       -- love.graphics.rectangle('line', go.x, go.y, go.boxes[1].width, go.boxes[1].height)

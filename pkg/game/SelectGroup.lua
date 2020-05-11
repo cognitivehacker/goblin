@@ -44,12 +44,9 @@ function SelectGroup:invertSquareCoordinates(game)
 end
 
 function SelectGroup:draw(game)
-    local x=game.camera.offsetX
-    local y=game.camera.offsetY
-
     if self:isAlive() then
         love.graphics.setColor(0,0.8,1)
-        love.graphics.rectangle('line', self.x-x, self.y-y, self.boxes[1].width, self.boxes[1].height)
+        love.graphics.rectangle('line', self.x, self.y, self.boxes[1].width, self.boxes[1].height)
         love.graphics.setColor(255,255,255)
     end
 end
